@@ -1,5 +1,6 @@
 import express, {json} from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import router from "./routes/index.js";
 
 const app = express();
