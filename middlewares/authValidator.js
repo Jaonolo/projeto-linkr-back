@@ -12,4 +12,6 @@ export const authValidator = async (req, res, next) => {
     } catch(error) {
         return res.status(500).send({message: 'Erro ao acessar o banco de dados.'})
     }
+
+    next()
 }
