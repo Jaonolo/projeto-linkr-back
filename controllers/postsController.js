@@ -9,20 +9,20 @@ export async function getPostByUser(req,res){
         return res.sendStatus(422);
     }
 
-    //const authorization = req.headers.authorization;
-    //const token = authorization?.replace("Bearer ", "").trim();
+    const authorization = req.headers.authorization;
+    const token = authorization?.replace("Bearer ", "").trim();
 
-    //if(!token){
-        //return res.sendStatus(401);
-    //}
+    if(!token){
+        return res.sendStatus(401);
+    }
 
     try {
 
-        //const userAuthorized = await db.query(`SELECT * FROM sessions WHERE "token"=$1 and 
-                                                        //"userId"=$2`, [token, parseInt(req.params.id)]);
-        //if(userAuthorized.rowCount == 0){
-            //return res.sendStatus(401);
-        //}
+        const userAuthorized = await db.query(`SELECT * FROM sessions WHERE "token"=$1 and 
+                                                "userId"=$2`, [token, parseInt(req.params.id)]);
+        if(userAuthorized.rowCount == 0){
+            return res.sendStatus(401);
+        }
 
         const isUser = await db.query(`SELECT * FROM users WHERE id=$1`, [parseInt(req.params.id)])
         if(isUser.rowCount == 0){
