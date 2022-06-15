@@ -1,6 +1,6 @@
 import { Router } from 'express';
 
-import { signupController, loginController } from '../controllers/auth.js'
+import { signupController, loginController } from '../controllers/authController.js'
 import { signupSchema, loginSchema  } from '../schemas/authSchemas.js';
 
 import { schemaValidator } from '../middlewares/schemaValidator.js';
