@@ -1,7 +1,7 @@
 import db from "../config/db.js";
-//import dotenv from "dotenv";
+import dotenv from "dotenv";
 
-//dotenv.config();
+dotenv.config();
 
 export async function getPostByUser(req,res){
 
@@ -41,7 +41,7 @@ export async function getPostByUser(req,res){
         GROUP BY hashtags.tag, "postsHashtags"."hashtagId"
         ORDER BY "hashtagId" DESC
         LIMIT 10`);
-        
+
         const sendPostInfo = {
             id: isUser.rows[0].id,
             userName: isUser.rows[0].userName,
