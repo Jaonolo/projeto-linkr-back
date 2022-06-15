@@ -4,6 +4,6 @@ import { newPostValidation } from '../middlewares/post.js';
 
 const postRouter = Router()
 
-postRouter.post('/newPost', newPostValidation, newPostController)
+postRouter.post('/newpost', newPostValidation, newPostController)
 
 export default postRouter

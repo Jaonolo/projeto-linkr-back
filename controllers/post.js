@@ -8,6 +8,6 @@ export const newPostController = async (req, res) => {
              VALUES ($1, $2, $3);`, [userId, link, message])
         return res.status(201).json({message:'Post criado.'})
     } catch(error) { 
-        return res.status(500).send(error) 
+        return  res.status(500).send(error) 
     }
 }
