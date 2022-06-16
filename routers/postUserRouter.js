@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getPostByUser } from '../controllers/postsController.js';
+import { getPostByUser } from '.././controllers/postByUserController.js';
 
 //import { signupController, loginController } from '../controllers/auth.js'
 //import schemaValidator from '../middlewares/schemaValidator.js';

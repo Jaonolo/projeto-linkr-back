@@ -1,5 +1,6 @@
 import db from "../config/db.js";
 import dotenv from "dotenv";
+import {urlMetadataInfo} from "./../globalFunctions/urlDataFunction.js";
 
 dotenv.config();
 
@@ -9,17 +10,18 @@ export async function getPostByUser(req,res){
         return res.sendStatus(422);
     }
 
+    let urlsInfo = [];
+
     const authorization = req.headers.authorization;
     const token = authorization?.replace("Bearer ", "").trim();
-
+    
     if(!token){
         return res.sendStatus(401);
     }
 
     try {
 
-        const userAuthorized = await db.query(`SELECT * FROM sessions WHERE "token"=$1 and 
-                                                "userId"=$2`, [token, parseInt(req.params.id)]);
+        const userAuthorized = await db.query(`SELECT * FROM sessions WHERE "token"=$1`, [token]);
         if(userAuthorized.rowCount == 0){
             return res.sendStatus(401);
         }
@@ -29,12 +31,14 @@ export async function getPostByUser(req,res){
             return res.sendStatus(404);
         }
 
-        const postsInfo = await db.query(`SELECT posts.message, posts.link, COUNT(likes."postId") as likes
+
+
+        const postsInfo = await db.query(`SELECT posts.id, posts.message, posts.link, COUNT(likes."postId") as likes
                                             FROM posts
                                             JOIN users ON posts."userId" = users.id
                                             LEFT JOIN likes ON posts.id = likes."postId" 
                                             WHERE users.id=$1
-                                            GROUP BY posts.message, posts.link`, [parseInt(req.params.id)]);
+                                            GROUP BY posts.id, posts.message, posts.link`, [parseInt(req.params.id)]);
         
         const hashtags = await db.query(`SELECT COUNT("hashtagId") as hashtagCount, hashtags.tag FROM "postsHashtags"
         JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
@@ -42,15 +46,22 @@ export async function getPostByUser(req,res){
         ORDER BY "hashtagId" DESC
         LIMIT 10`);
 
+        for(postsInfo.rows.link in postsInfo.rows){
+            const urlDataInfo = await urlMetadataInfo(postsInfo.rows[postsInfo.rows.link].link)
+            urlsInfo.push(urlDataInfo)
+        }
+
         const sendPostInfo = {
             id: isUser.rows[0].id,
             userName: isUser.rows[0].userName,
             profilePicture: isUser.rows[0].profilePicture,
-            postsInfo: postsInfo.rows,
-            allHashtagsInfo: hashtags.rows
+            allHashtagsInfo: [...hashtags.rows],
+            postsInfo: [...postsInfo.rows],
+            ...urlsInfo
         }
+            
 
-        res.status(200).send(sendPostInfo);
+    res.status(200).send(sendPostInfo);
 
     } catch (error) {
         console.log(error);
