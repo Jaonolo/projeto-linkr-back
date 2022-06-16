@@ -2,11 +2,10 @@ import express, {json} from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import authRouter from "./routers/auth.js"
-import postRouter from "./routers/post.js";
-import usersRouter from "./routers/users.js";
-import { getTimeline } from "./controllers/timeline.js";
-import timeLine from "./routers/timeline.js";
+import timeLineRouter from "./routers/timelineRouter.js";
+import authRouter from "./routers/authRouter.js"
+import postRouter from "./routers/postRouter.js";
+import usersRouter from "./routers/usersRouter.js";
 
 const app = express();
 
@@ -19,7 +18,7 @@ app.use(cors());
 app.use(authRouter)
 app.use(postRouter)
 app.use(usersRouter)
-app.use(timeLine)
+app.use(timeLineRouter)
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
