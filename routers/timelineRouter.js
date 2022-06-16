@@ -4,6 +4,6 @@ import { authValidator } from '../middlewares/authValidator.js'
 
 const timeLineRouter = Router()
 
-timeLineRouter.get('/timeline', authValidator ,timeLineController)
+timeLineRouter.get('/timeline', timeLineController)
 
 export default timeLineRouter;
