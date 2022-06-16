@@ -1,5 +1,6 @@
 import db from "../config/db.js";
 import dotenv from "dotenv";
+import urlMetadata from "url-metadata";
 
 dotenv.config();
 
@@ -8,18 +9,17 @@ export async function getPostByUser(req,res){
     if(isNaN(req.params.id)){
         return res.sendStatus(422);
     }
-
+    
     const authorization = req.headers.authorization;
     const token = authorization?.replace("Bearer ", "").trim();
-
+    
     if(!token){
         return res.sendStatus(401);
     }
 
     try {
 
-        const userAuthorized = await db.query(`SELECT * FROM sessions WHERE "token"=$1 and 
-                                                "userId"=$2`, [token, parseInt(req.params.id)]);
+        const userAuthorized = await db.query(`SELECT * FROM sessions WHERE "token"=$1`, [token]);
         if(userAuthorized.rowCount == 0){
             return res.sendStatus(401);
         }
@@ -50,7 +50,7 @@ export async function getPostByUser(req,res){
             allHashtagsInfo: hashtags.rows
         }
 
-        res.status(200).send(sendPostInfo);
+    res.status(200).send(sendPostInfo);
 
     } catch (error) {
         console.log(error);

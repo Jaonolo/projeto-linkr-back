@@ -2,9 +2,9 @@ import express, {json} from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import postUserRouter from "./routers/postUser.js";
+import postUserRouter from "./routers/postUserRouter.js";
 import authRouter from "./routers/authRouter.js"
-import postRouter from "./routers/postRouter.js";
+import postRouter from "./routers/postUserRouter.js";
 //import usersRouter from "./routers/usersRouter.js";
 
 const app = express();
