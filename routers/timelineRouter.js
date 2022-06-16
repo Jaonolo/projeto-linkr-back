@@ -1,8 +1,9 @@
 import { Router } from 'express';
-import { getTimeline } from '../controllers/timeline.js';
+import { timeLineController } from '../controllers/timeLineController.js';
+import { authValidator } from '../middlewares/authValidator.js'
 
 const timeLineRouter = Router()
 
-timeLineRouter.get('/timeline', getTimeline)
+timeLineRouter.get('/timeline', authValidator ,timeLineController)
 
 export default timeLineRouter;
