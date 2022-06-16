@@ -33,12 +33,12 @@ export async function getPostByUser(req,res){
 
 
 
-        const postsInfo = await db.query(`SELECT posts.message, posts.link, COUNT(likes."postId") as likes
+        const postsInfo = await db.query(`SELECT posts.id, posts.message, posts.link, COUNT(likes."postId") as likes
                                             FROM posts
                                             JOIN users ON posts."userId" = users.id
                                             LEFT JOIN likes ON posts.id = likes."postId" 
                                             WHERE users.id=$1
-                                            GROUP BY posts.message, posts.link`, [parseInt(req.params.id)]);
+                                            GROUP BY posts.id, posts.message, posts.link`, [parseInt(req.params.id)]);
         
         const hashtags = await db.query(`SELECT COUNT("hashtagId") as hashtagCount, hashtags.tag FROM "postsHashtags"
         JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
