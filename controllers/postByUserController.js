@@ -1,6 +1,6 @@
 import db from "../config/db.js";
 import dotenv from "dotenv";
-import urlMetadata from "url-metadata";
+import {urlMetadataInfo} from "./../globalFunctions/urlDataFunction.js";
 
 dotenv.config();
 
@@ -9,7 +9,9 @@ export async function getPostByUser(req,res){
     if(isNaN(req.params.id)){
         return res.sendStatus(422);
     }
-    
+
+    let urlsInfo = [];
+
     const authorization = req.headers.authorization;
     const token = authorization?.replace("Bearer ", "").trim();
     
@@ -29,6 +31,8 @@ export async function getPostByUser(req,res){
             return res.sendStatus(404);
         }
 
+
+
         const postsInfo = await db.query(`SELECT posts.message, posts.link, COUNT(likes."postId") as likes
                                             FROM posts
                                             JOIN users ON posts."userId" = users.id
@@ -42,13 +46,20 @@ export async function getPostByUser(req,res){
         ORDER BY "hashtagId" DESC
         LIMIT 10`);
 
+        for(postsInfo.rows.link in postsInfo.rows){
+            const urlDataInfo = await urlMetadataInfo(postsInfo.rows[postsInfo.rows.link].link)
+            urlsInfo.push(urlDataInfo)
+        }
+
         const sendPostInfo = {
             id: isUser.rows[0].id,
             userName: isUser.rows[0].userName,
             profilePicture: isUser.rows[0].profilePicture,
-            postsInfo: postsInfo.rows,
-            allHashtagsInfo: hashtags.rows
+            allHashtagsInfo: [...hashtags.rows],
+            postsInfo: [...postsInfo.rows],
+            ...urlsInfo
         }
+            
 
     res.status(200).send(sendPostInfo);
 
