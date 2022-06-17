@@ -11,6 +11,8 @@ export async function getPostByUser(req,res){
     }
 
     let urlsInfo = [];
+    let typeLike;
+    let typesInfo = [];
 
     const authorization = req.headers.authorization;
     const token = authorization?.replace("Bearer ", "").trim();
@@ -29,9 +31,7 @@ export async function getPostByUser(req,res){
         const isUser = await db.query(`SELECT * FROM users WHERE id=$1`, [parseInt(req.params.id)])
         if(isUser.rowCount == 0){
             return res.sendStatus(404);
-        }
-
-
+        } 
 
         const postsInfo = await db.query(`SELECT posts.id, posts.message, posts.link, COUNT(likes."postId") as likes
                                             FROM posts
@@ -51,15 +51,33 @@ export async function getPostByUser(req,res){
             urlsInfo.push(urlDataInfo)
         }
 
+        const whoLiked = await db.query(`SELECT likes."userId" as "UserLiked", posts.id as "idPostLiked"
+                                    FROM posts
+                                    JOIN users ON posts."userId" = users.id
+                                    JOIN likes ON posts.id = likes."postId" 
+                                    WHERE users.id=$1
+                                    GROUP BY likes."userId", posts.id`, [parseInt(req.params.id)]);
+        
+        if(whoLiked.rowCount === 0){
+            typeLike='dislike';
+        } else {    
+            for(whoLiked.rows.idPostLiked in whoLiked.rows){
+                typesInfo = [ {postLiked:whoLiked.rows[whoLiked.rows.idPostLiked].idPostLiked},
+                                {typeLike:'like'}]
+            }
+        }
+        console.log(typesInfo)
         const sendPostInfo = {
             id: isUser.rows[0].id,
             userName: isUser.rows[0].userName,
             profilePicture: isUser.rows[0].profilePicture,
             allHashtagsInfo: [...hashtags.rows],
             postsInfo: [...postsInfo.rows],
-            ...urlsInfo
+            ...urlsInfo,
+            LikesInfo: typesInfo
         }
-            
+        
+        console.log(sendPostInfo)
 
     res.status(200).send(sendPostInfo);
 
