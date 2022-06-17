@@ -2,6 +2,7 @@ import express, {json} from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
+import timeLineRouter from "./routers/timelineRouter.js";
 
 import authRouter from "./routers/authRouter.js"
 import postRouter from "./routers/postRouter.js";
@@ -16,12 +17,12 @@ dotenv.config();
 app.use(json());
 app.use(cors());
 
+//routes
 app.use(authRouter)
-
 app.use(postRouter)
 app.use(usersRouter)
+app.use(timeLineRouter)
 app.use(postUserRouter)
-
 app.use(likesRouter)
 
 
