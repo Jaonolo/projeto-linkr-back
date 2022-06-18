@@ -13,17 +13,12 @@ export const newPostController = async (req, res) => {
 }
 
 export const editPostController = async (req, res) => {
-    const { id, message } = req.body
-    const {authorization} = req.headers
-    const token = authorization?.replace("Bearer", "").trim()
+    const { id, message, userId} = res.locals.editPostData
     try {
-        const sessionData = await client.query(`SELECT * FROM sessions WHERE token = $1;`, [token])
-        const session = sessionData.rows[0]
-        
         await client.query(
             `UPDATE posts
              SET message = $1, edited = $2
-             WHERE id = $3 AND "userId" = $4;`, [message, true, id, session.userId])
+             WHERE id = $3 AND "userId" = $4;`, [message, true, id, userId])
         return res.status(200).json({message:'Post editado.'})
     } catch(error) { 
         console.log(error)
