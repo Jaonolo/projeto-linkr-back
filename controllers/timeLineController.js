@@ -22,7 +22,7 @@ export async function timeLineController (req, res){
             GROUP BY posts.id, posts.message, posts.link, users."profilePicture", users."userName"
             ORDER BY id DESC LIMIT 20`)
         const sendPostList = await createList(post.rows)
-        console.log(sendPostList)
+        //console.log(sendPostList)
 
         return res.status(200).send(sendPostList)
 

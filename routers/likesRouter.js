@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { deleteLikes, postLikes } from '../controllers/likesController.js';
+import { postLikes } from '../controllers/likesController.js';
 
 //import { signupController, loginController } from '../controllers/auth.js'
 //import schemaValidator from '../middlewares/schemaValidator.js';

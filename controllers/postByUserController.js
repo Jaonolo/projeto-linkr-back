@@ -13,6 +13,7 @@ export async function getPostByUser(req,res){
     let urlsInfo = [];
     let typeLike;
     let typesInfo = [];
+    let userId;
 
     const authorization = req.headers.authorization;
     const token = authorization?.replace("Bearer ", "").trim();
@@ -27,6 +28,8 @@ export async function getPostByUser(req,res){
         if(userAuthorized.rowCount == 0){
             return res.sendStatus(401);
         }
+
+        userId = userAuthorized.rows[0].userId;
 
         const isUser = await db.query(`SELECT * FROM users WHERE id=$1`, [parseInt(req.params.id)])
         if(isUser.rowCount == 0){
@@ -51,22 +54,20 @@ export async function getPostByUser(req,res){
             urlsInfo.push(urlDataInfo)
         }
 
-        const whoLiked = await db.query(`SELECT likes."userId" as "UserLiked", posts.id as "idPostLiked"
-                                    FROM posts
-                                    JOIN users ON posts."userId" = users.id
-                                    JOIN likes ON posts.id = likes."postId" 
-                                    WHERE users.id=$1
-                                    GROUP BY likes."userId", posts.id`, [parseInt(req.params.id)]);
-        
-        if(whoLiked.rowCount === 0){
-            typeLike='dislike';
-        } else {    
-            for(whoLiked.rows.idPostLiked in whoLiked.rows){
-                typesInfo = [ {postLiked:whoLiked.rows[whoLiked.rows.idPostLiked].idPostLiked},
-                                {typeLike:'like'}]
+        const whatLiked = await db.query(`SELECT likes."userId" as "UserLiked", posts.id as "idPostLiked"
+                                            FROM posts
+                                            JOIN users ON posts."userId" = users.id
+                                            JOIN likes ON posts.id = likes."postId" 
+                                            WHERE likes."userId"=$1
+                                            GROUP BY likes."userId", posts.id`, [parseInt(userId)]);
+
+        if(whatLiked.rowCount !== 0){
+            for(whatLiked.rows.idPostLiked in whatLiked.rows){
+                const infosLikedPosts = whatLiked.rows[whatLiked.rows.idPostLiked].idPostLiked
+                typesInfo.push(infosLikedPosts)
             }
-        }
-        console.log(typesInfo)
+        } 
+
         const sendPostInfo = {
             id: isUser.rows[0].id,
             userName: isUser.rows[0].userName,
@@ -74,11 +75,9 @@ export async function getPostByUser(req,res){
             allHashtagsInfo: [...hashtags.rows],
             postsInfo: [...postsInfo.rows],
             ...urlsInfo,
-            LikesInfo: typesInfo
+            IdLikesPosts: typesInfo
         }
         
-        console.log(sendPostInfo)
-
     res.status(200).send(sendPostInfo);
 
     } catch (error) {
