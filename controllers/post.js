@@ -1,4 +1,5 @@
 import client from '../config/db.js'
+import postsRepository from "../repositories/postsRepository.js";
 
 export const newPostController = async (req, res) => {
     const {userId, link, message} = res.locals.postData
@@ -9,5 +10,15 @@ export const newPostController = async (req, res) => {
         return res.status(201).json({message:'Post criado.'})
     } catch(error) { 
         return  res.status(500).send(error) 
+    }
+}
+
+export async function getPostsByHashtag(req, res) {
+    const {hashtag} = req.query;
+
+    try {
+        
+    } catch (error) {
+        res.status(500).send(error);
     }
 }
