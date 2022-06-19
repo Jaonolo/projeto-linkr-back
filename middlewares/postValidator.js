@@ -27,3 +27,35 @@ export async function newPostValidation(req, res, next){
     }
     next()
 }
+export async function editPostValidation(req, res, next){
+    const { id, userId, message } = req.body
+    const {authorization} = req.headers
+    const token = authorization?.replace("Bearer", "").trim()
+
+    const editPostSchema = Joi.object({
+        id: Joi.number().required(),
+        userId: Joi.number().required(),
+        message: Joi.string().required()  
+    })
+    const {error} = editPostSchema.validate({id, userId, message})
+    if(error){
+        console.log(id)
+        return res.status(422).json({message:'Não foi possível editar sua postagem.'})
+    }
+
+    try{
+        const sessionData = await client.query(`SELECT * FROM sessions WHERE sessions.token = $1;`, [token])
+        if(sessionData.rows.length===0) return res.status(404).json({message:'Não é possivel utilizar o token atual.'})
+        const session = sessionData.rows[0]
+        if(session.userId != parseInt(userId)) return res.status(422).json({message:'Você não tem permissão para editar este post.'})
+
+        res.locals.editPostData = {
+            id: id,
+            message: message,
+            userId: session.userId
+        }
+    }catch(error){
+        return res.status(500).json({message: 'Erro ao acessar o banco de dados.'})
+    }
+    next()
+}
