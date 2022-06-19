@@ -54,30 +54,30 @@ export async function getPostByUser(req,res){
             urlsInfo.push(urlDataInfo)
         }
 
-        const whatLiked = await db.query(`SELECT likes."userId" as "UserLiked", posts.id as "idPostLiked"
-                                            FROM posts
-                                            JOIN users ON posts."userId" = users.id
-                                            JOIN likes ON posts.id = likes."postId" 
-                                            WHERE likes."userId"=$1
-                                            GROUP BY likes."userId", posts.id`, [parseInt(userId)]);
+        const whatLiked = await db.query(`SELECT likes."userId" as "UserLiked", posts.id as "idPostLiked", 
+                                            users."userName" as "whoLiked"
+                                            FROM likes
+                                            JOIN posts ON posts.id = likes."postId" 
+                                            JOIN users ON likes."userId" = users.id 
+                                            GROUP BY likes."userId", posts.id, users."userName"`);
 
-        if(whatLiked.rowCount !== 0){
+ /*        if(whatLiked.rowCount !== 0){
             for(whatLiked.rows.idPostLiked in whatLiked.rows){
                 const infosLikedPosts = whatLiked.rows[whatLiked.rows.idPostLiked].idPostLiked
                 typesInfo.push(infosLikedPosts)
             }
-        } 
-
+        } */ 
+        console.log(whatLiked.rows)
         const sendPostInfo = {
             id: isUser.rows[0].id,
             userName: isUser.rows[0].userName,
             profilePicture: isUser.rows[0].profilePicture,
             allHashtagsInfo: [...hashtags.rows],
             postsInfo: [...postsInfo.rows],
-            ...urlsInfo,
-            IdLikesPosts: typesInfo
+            postsLikesInfo: [...whatLiked.rows],
+            ...urlsInfo
         }
-        
+        console.log(sendPostInfo)
     res.status(200).send(sendPostInfo);
 
     } catch (error) {
