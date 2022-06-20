@@ -1,6 +1,7 @@
 import db from "../config/db.js";
 import dotenv from "dotenv";
 import {urlMetadataInfo} from "./../globalFunctions/urlDataFunction.js";
+import hashtagsRepository from "./../repositories/hashtagsRepository.js"
 
 dotenv.config();
 
@@ -11,8 +12,6 @@ export async function getPostByUser(req,res){
     }
 
     let urlsInfo = [];
-    let typeLike;
-    let typesInfo = [];
     let userId;
 
     const authorization = req.headers.authorization;
@@ -43,11 +42,7 @@ export async function getPostByUser(req,res){
                                             WHERE users.id=$1
                                             GROUP BY posts.id, posts.message, posts.link`, [parseInt(req.params.id)]);
         
-        const hashtags = await db.query(`SELECT COUNT("hashtagId") as hashtagCount, hashtags.tag FROM "postsHashtags"
-        JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
-        GROUP BY hashtags.tag, "postsHashtags"."hashtagId"
-        ORDER BY "hashtagId" DESC
-        LIMIT 10`);
+        const hashtags = await hashtagsRepository.getTop10TrendingHashtags() 
 
         for(postsInfo.rows.link in postsInfo.rows){
             const urlDataInfo = await urlMetadataInfo(postsInfo.rows[postsInfo.rows.link].link)
@@ -55,19 +50,14 @@ export async function getPostByUser(req,res){
         }
 
         const whatLiked = await db.query(`SELECT likes."userId" as "UserLiked", posts.id as "idPostLiked", 
-                                            users."userName" as "whoLiked"
+                                            u2."userName" as "whoLiked"
                                             FROM likes
                                             JOIN posts ON posts.id = likes."postId" 
-                                            JOIN users ON likes."userId" = users.id 
-                                            GROUP BY likes."userId", posts.id, users."userName"`);
+                                            JOIN users u2 ON likes."userId" = u2.id 
+                                            JOIN users u1 ON posts."userId" = u1.id
+                                            WHERE u1.id = $1
+                                            GROUP BY likes."userId", posts.id, u2."userName"`, [parseInt(req.params.id)]);
 
- /*        if(whatLiked.rowCount !== 0){
-            for(whatLiked.rows.idPostLiked in whatLiked.rows){
-                const infosLikedPosts = whatLiked.rows[whatLiked.rows.idPostLiked].idPostLiked
-                typesInfo.push(infosLikedPosts)
-            }
-        } */ 
-        console.log(whatLiked.rows)
         const sendPostInfo = {
             id: isUser.rows[0].id,
             userName: isUser.rows[0].userName,
@@ -77,11 +67,11 @@ export async function getPostByUser(req,res){
             postsLikesInfo: [...whatLiked.rows],
             ...urlsInfo
         }
-        console.log(sendPostInfo)
+
     res.status(200).send(sendPostInfo);
 
     } catch (error) {
         console.log(error);
-        res.status(500).send("Ocorreu um erro na rota get Users");
+        res.status(500).send("Ocorreu um erro na rota post by user");
     }
 }
