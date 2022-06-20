@@ -19,7 +19,7 @@ export const signupController = async (req, res) => {
         const convertion = {
             "23505": 409
         }
-
+        console.log(error);
         return res.status(convertion[error.code] || 500).send(error)
     }
 }
