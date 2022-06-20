@@ -14,13 +14,13 @@ export async function timeLineController (req, res){
 
     try {
         const post = await client.query(`
-            SELECT posts.id, users."profilePicture", posts.message, posts.link, users."userName",
+            SELECT posts.id, users."profilePicture", posts.message, posts.link, users."userName", posts."userId",
             COUNT(likes."postId") as likes
             FROM posts 
             JOIN users ON posts."userId" = users.id
             LEFT JOIN likes ON posts.id = likes."postId"  
             GROUP BY posts.id, posts.message, posts.link, users."profilePicture", users."userName"
-            ORDER BY id DESC LIMIT 20`)
+            ORDER BY id DESC LIMIT 3`)
         const sendPostList = await createList(post.rows)
         //console.log(sendPostList)
 
