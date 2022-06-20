@@ -67,8 +67,10 @@ export async function getPostsByHashtag(req, res) {
 
     try {
         const posts = (await postsRepository.getPostsByHashtag(hashtag)).rows;
+        //let urlsInfo = [];
         for(let post of posts) {
-            post.urlDataInfo = await urlMetadataInfo(post.link)
+            post.urlMeta = await urlMetadataInfo(post.link)
+            //urlsInfo.push(post.urlDataInfo);
         }
         res.send(posts);
     } catch (error) {
