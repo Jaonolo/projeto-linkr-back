@@ -13,6 +13,20 @@ export const newPostController = async (req, res) => {
     }
 }
 
+export const editPostController = async (req, res) => {
+    const { id, message, userId} = res.locals.editPostData
+    try {
+        await client.query(
+            `UPDATE posts
+             SET message = $1, edited = $2
+             WHERE id = $3 AND "userId" = $4;`, [message, true, id, userId])
+        return res.status(200).json({message:'Post editado.'})
+    } catch(error) { 
+        console.log(error)
+        return  res.status(500).send(error.data)
+    }
+}
+
 export async function getPostsByHashtag(req, res) {
     const {hashtag} = req.query;
 

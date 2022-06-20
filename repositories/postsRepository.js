@@ -10,4 +10,6 @@ async function getPostsByHashtag(hashtag) {
     );
 }
 
-export default postsRepository = {getPostsByHashtag};
+const postsRepository = {getPostsByHashtag};
+
+export default postsRepository;

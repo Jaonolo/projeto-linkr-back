@@ -10,5 +10,6 @@ async function getTop10TrendingHashtags() {
     );
 }
 
-export default hashtagsRepository = {getTop10TrendingHashtags};
+const hashtagsRepository = {getTop10TrendingHashtags};
 
+export default hashtagsRepository;
