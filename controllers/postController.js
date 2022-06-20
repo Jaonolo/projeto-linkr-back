@@ -18,6 +18,7 @@ export const newPostController = async (req, res) => {
         if(readNewHashtag) {
             if(message[i] === "#" || message[i] === " " || i === message.length) {
                 hashtags.push(newHashtag.join(""));
+                readNewHashtag = false;
                 continue;
             }
             newHashtag.push(message[i]);
@@ -67,10 +68,8 @@ export async function getPostsByHashtag(req, res) {
 
     try {
         const posts = (await postsRepository.getPostsByHashtag(hashtag)).rows;
-        //let urlsInfo = [];
         for(let post of posts) {
             post.urlMeta = await urlMetadataInfo(post.link)
-            //urlsInfo.push(post.urlDataInfo);
         }
         res.send(posts);
     } catch (error) {
