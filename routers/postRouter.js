@@ -1,10 +1,7 @@
 import { Router } from 'express';
 
-import { deletePostController, editPostController, newPostController } from '../controllers/postController.js';
+import { deletePostController, editPostController, newPostController, getPostsByHashtag } from '../controllers/postController.js';
 import { deletePostValidation, editPostValidation, newPostValidation } from '../middlewares/postValidator.js';
-
-import { editPostController, newPostController, getPostsByHashtag } from '../controllers/postController.js';
-import { editPostValidation, newPostValidation } from '../middlewares/postValidator.js';
 
 const postRouter = Router()
 
