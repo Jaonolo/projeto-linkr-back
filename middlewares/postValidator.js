@@ -65,7 +65,7 @@ export async function deletePostValidation(req, res, next){
     const { id } = req.params
     const {authorization} = req.headers
     const token = authorization?.replace("Bearer", "").trim()
-
+    
     const deletePostSchema = Joi.object({
         id: Joi.number().required() 
     })
