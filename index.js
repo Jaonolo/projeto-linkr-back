@@ -9,6 +9,7 @@ import postRouter from "./routers/postRouter.js";
 import usersRouter from "./routers/usersRouter.js";
 import postUserRouter from "./routers/postUserRouter.js";
 import likesRouter from "./routers/likesRouter.js";
+import hashtagRouter from "./routers/hashTagRouter.js";
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.use(usersRouter)
 app.use(timeLineRouter)
 app.use(postUserRouter)
 app.use(likesRouter)
-
+app.use(hashtagRouter)
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
