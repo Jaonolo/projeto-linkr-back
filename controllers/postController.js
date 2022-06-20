@@ -25,3 +25,14 @@ export const editPostController = async (req, res) => {
         return  res.status(500).send(error.data)
     }
 }
+
+export const deletePostController = async (req, res) => {
+    const { id } = res.locals
+    try {
+        await client.query(`DELETE FROM posts WHERE id = $1;`, [id])
+        return res.status(204).json({message:'Post deletado.'})
+    } catch(error) { 
+        console.log(error)
+        return  res.status(500).send(error.data)
+    }
+}

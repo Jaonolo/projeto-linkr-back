@@ -27,6 +27,7 @@ export async function newPostValidation(req, res, next){
     }
     next()
 }
+
 export async function editPostValidation(req, res, next){
     const { id, userId, message } = req.body
     const {authorization} = req.headers
@@ -54,6 +55,31 @@ export async function editPostValidation(req, res, next){
             message: message,
             userId: session.userId
         }
+    }catch(error){
+        return res.status(500).json({message: 'Erro ao acessar o banco de dados.'})
+    }
+    next()
+}
+
+export async function deletePostValidation(req, res, next){
+    const { id } = req.params
+    const {authorization} = req.headers
+    const token = authorization?.replace("Bearer", "").trim()
+
+    const deletePostSchema = Joi.object({
+        id: Joi.number().required() 
+    })
+    const {error} = deletePostSchema.validate({id})
+    if(error){
+        return res.status(422).json({message:'ID invalido Impossivel deletar.'})
+    }
+    try{
+        const postData = await client.query(
+            `SELECT * FROM posts
+             JOIN sessions ON sessions.token = $1
+             WHERE posts."userId" = sessions."userId" AND posts.id = $2;`, [token, id])
+        if(postData.rows.length===0) return res.status(404).json({message:'Você não tem permissão para deletar este post.'})
+        res.locals = {id: id}
     }catch(error){
         return res.status(500).json({message: 'Erro ao acessar o banco de dados.'})
     }
