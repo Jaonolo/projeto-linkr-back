@@ -16,3 +16,16 @@ export const getUser = async (req, res) => {
         return res.status(500).send(error) 
     }
 }
+
+export const getUsersByName = async (req, res) => {
+    try {
+        const {searchString} = req.body
+        const result = await client.query(
+            `SELECT users.id, users."userName", users."profilePicture"
+             FROM users
+             WHERE users."userName" LIKE $1;`, [searchString + '%'])
+        return res.status(200).send(result)
+    } catch(error) { 
+        return res.status(500).send(error) 
+    }
+}

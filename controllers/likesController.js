@@ -8,8 +8,9 @@ export async function postLikes(req,res){
     if(isNaN(req.params.postId)){
         return res.sendStatus(422);
     }
-    console.log('entrei post like')
+
     let userId;
+    let postIdInfo;
 
     const authorization = req.headers.authorization;
     const token = authorization?.replace("Bearer ", "").trim();
@@ -26,54 +27,32 @@ export async function postLikes(req,res){
         }
 
         userId = userAuthorized.rows[0].userId;
-
-        await db.query(`INSERT INTO likes ("postId", "userId")
-                        VALUES ($1, $2)`, [parseInt(req.params.postId), parseInt(userId)]);
         
-        const likesInfo = await db.query(`SELECT COUNT(likes."postId") as likes
-                                            FROM likes
-                                            WHERE likes."postId"=$1`, [parseInt(req.params.postId)]);
-
-
-        res.status(200).send(likesInfo.rows);
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).send("Ocorreu um erro na rota post Likes");
-    }
-}
-
-export async function deleteLikes(req,res){
-    
-    if(isNaN(req.params.postId)){
-        return res.sendStatus(422);
-    }
-    console.log('entrei delete like')
-    let userId;
-
-    const authorization = req.headers.authorization;
-    const token = authorization?.replace("Bearer ", "").trim();
-    
-    if(!token){
-        return res.sendStatus(401);
-    }
-
-    try {
-
-        const userAuthorized = await db.query(`SELECT * FROM sessions WHERE "token"=$1`, [token]);
-        if(userAuthorized.rowCount == 0){
-            return res.sendStatus(401);
+        const hasLike = await db.query(`SELECT * FROM likes 
+                                        WHERE likes."userId"=$1 
+                                        AND likes."postId"=$2`, [parseInt(userId), parseInt(req.params.postId)]);
+        
+        if(hasLike.rowCount !== 0){
+            
+            await db.query(`DELETE FROM likes WHERE likes."postId"=$1 
+                            AND likes."userId"=$2`, [parseInt(req.params.postId), parseInt(userId)]);
+            
+            postIdInfo = parseInt(req.params.postId);
+        } else {
+            
+            await db.query(`INSERT INTO likes ("postId", "userId")
+                            VALUES ($1, $2)`, [parseInt(req.params.postId), parseInt(userId)]);
+            
+            postIdInfo = parseInt(req.params.postId);
         }
 
-        userId = userAuthorized.rows[0].userId;
-
-        await db.query(`DELETE FROM likes WHERE likes."postId"=$1 AND likes."userId"=$2 `, [parseInt(req.params.postId), parseInt(userId)]);
         
-        const likesInfo = await db.query(`SELECT COUNT(likes."postId") as likes
-                                            FROM likes
-                                            WHERE likes."postId"=$1`, [parseInt(req.params.postId)]);
+        const countLikesInfo = await db.query(`SELECT COUNT(likes."postId") as likes
+                                                FROM likes
+                                                WHERE likes."postId"=$1`, [parseInt(req.params.postId)]);
 
-        res.status(200).send(likesInfo.rows);
+        const infos = [countLikesInfo.rows[0]];
+        res.status(200).send(infos);
 
     } catch (error) {
         console.log(error);
