@@ -49,9 +49,9 @@ export async function postLikes(req,res){
 
         
         const countLikesInfo = await db.query(`SELECT COUNT(likes."postId") as likes
-                                            FROM likes
-                                            WHERE likes."postId"=$1`, [parseInt(req.params.postId)]);
-
+                                                FROM likes
+                                                WHERE likes."postId"=$1`, [parseInt(req.params.postId)]);
+        // TODO: ADD WHERE IN WHATLIKED
         const whatLiked = await db.query(`SELECT likes."userId" as "UserLiked", posts.id as "idPostLiked", 
                                             users."userName" as "whoLiked"
                                             FROM likes
