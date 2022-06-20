@@ -63,7 +63,7 @@ export const editPostController = async (req, res) => {
 }
 
 export async function getPostsByHashtag(req, res) {
-    const {hashtag} = req.params;
+    let hashtag = "#" + req.params.hashtag;
 
     try {
         const posts = (await postsRepository.getPostsByHashtag(hashtag)).rows;
