@@ -1,4 +1,5 @@
 import client from '../config/db.js'
+import { urlMetadataInfo } from '../globalFunctions/urlDataFunction.js'
 import postsRepository from "../repositories/postsRepository.js";
 import hashtagsRepository from '../repositories/hashtagsRepository.js';
 
@@ -9,13 +10,13 @@ export const newPostController = async (req, res) => {
     let newHashtag = [];
     let readNewHashtag = false;
     for(let i = 0; i <= message.length; i++) {
-        if(message[i] == "#") {
+        if(message[i] === "#") {
             readNewHashtag = true;
             newHashtag = ["#"];
             continue;
         }
         if(readNewHashtag) {
-            if(message[i] == "#" || message[i] == " " || i == message.length) {
+            if(message[i] === "#" || message[i] === " " || i === message.length) {
                 hashtags.push(newHashtag.join(""));
                 continue;
             }
@@ -62,11 +63,16 @@ export const editPostController = async (req, res) => {
 }
 
 export async function getPostsByHashtag(req, res) {
-    const {hashtag} = req.query;
+    const {hashtag} = req.params;
 
     try {
-        
+        const posts = (await postsRepository.getPostsByHashtag(hashtag)).rows;
+        for(let post of posts) {
+            post.urlDataInfo = await urlMetadataInfo(post.link)
+        }
+        res.send(posts);
     } catch (error) {
+        console.log(error);
         res.status(500).send(error);
     }
 }
