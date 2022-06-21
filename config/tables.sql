@@ -41,3 +41,25 @@ CREATE TABLE "sessions" (
 	"token" TEXT NOT NULL,
 	"createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE "followers" (
+	"id" serial NOT NULL PRIMARY KEY,
+	"followerId" integer NOT NULL REFERENCES users(id),
+    "followedId" integer NOT NULL REFERENCES users(id),
+	"createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE "comments" (
+	"id" serial NOT NULL PRIMARY KEY,
+	"postsId" integer NOT NULL REFERENCES posts(id),
+    "userId" integer NOT NULL REFERENCES users(id),
+    "text" TEXT NOT NULL,
+	"createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE "repost" (
+	"id" serial NOT NULL PRIMARY KEY,
+	"postsId" integer NOT NULL REFERENCES posts(id),
+    "userId" integer NOT NULL REFERENCES users(id),
+	"createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+);
