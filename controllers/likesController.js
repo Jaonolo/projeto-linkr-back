@@ -51,7 +51,7 @@ export async function postLikes(req,res){
                                                 FROM likes
                                                 WHERE likes."postId"=$1`, [parseInt(req.params.postId)]);
 
-        const infos = [countLikesInfo.rows[0]];
+        const infos = [countLikesInfo.rows[0], postIdInfo];
         res.status(200).send(infos);
 
     } catch (error) {
