@@ -40,10 +40,10 @@ export async function getComments(req,res){
                                                 comments.text, posts."userId", comments."createdAt"
                                                 ORDER BY comments."createdAt" `, [parseInt(req.params.postId)])
     
-        const followersInfo = await db.query(`SELECT followers."follwerId" as "whoFollows",
+        const followersInfo = await db.query(`SELECT followers."followerId" as "whoFollows",
                                                 followers."followedId" as "whoIsFollowed"
                                                 FROM followers
-                                                WHERE followers."follwerId"=$1`, [userId])
+                                                WHERE followers."followerId"=$1`, [userId])
         
 
         if(commentsInfos.rows.length !== 0){
