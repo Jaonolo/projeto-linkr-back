@@ -29,3 +29,23 @@ export const getUsersByName = async (req, res) => {
         return res.status(500).send(error) 
     }
 }
+/*
+export const getUserById = async (req, res) => {
+
+    const id = parseInt(req.params.id);
+
+    try {
+        const user = await client.query(
+            `SELECT users."userName", users."profilePicture"
+            FROM users
+            WHERE users.id = $1;`, [id]);
+        
+        if(user.rowCount == 0)
+            return res.sendStatus(404);
+
+        return res.send(user.rows[0]);
+
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}*/
