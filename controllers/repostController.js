@@ -21,15 +21,35 @@ export const getTimelineList = async (req, res) => {
             let post = {}
             if(timelineList[i].postsId){
                 const postData = await client.query(`SELECT * FROM posts WHERE id = $1;`, [timelineList[i].postsId])
+                const postRow = postData.rows[0]
+                const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [postRow.userId])
+                const postUser = postUserData.rows[0]
                 const whoRepostedData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
+                const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].postsId])
+
                 post = {
                     isRepost: true,
                     whoReposted: whoRepostedData.rows[0].userName,
                     createdAt:timelineList[i].createdAt,
-                    post: {...postData.rows[0]}
+                    id:postRow.id,
+                    userId:postRow.userId,
+                    userName: postUser.userName,
+                    profilePicture:postUser.profilePicture,
+                    link: postRow.link,
+                    message:postRow.message,
+                    edited:postRow.edited,
+                    numberReposts: repostsData.rows.length
                 }
             }else{
-                post = timelineList[i]
+                const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].id])
+                const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
+                const postUser = postUserData.rows[0]
+                post = {
+                    ...timelineList[i],
+                    userName: postUser.userName,
+                    profilePicture:postUser.profilePicture,
+                    numberReposts: repostsData.rows.length
+                }
             }
             list.push(post)
         }
