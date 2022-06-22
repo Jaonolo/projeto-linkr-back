@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { postLikes } from '../controllers/likesController.js';
-
-//import { signupController, loginController } from '../controllers/auth.js'
-//import schemaValidator from '../middlewares/schemaValidator.js';
+import { getWhoLiked, postLikes } from '../controllers/likesController.js';
+import { authValidator } from '../middlewares/authValidator.js';
 
 const likesRouter = Router()
 
-likesRouter.patch('/togglelike/:postId', postLikes)//, schemaValidator('signup'), signupController)
-//likesRouter.post('/unlike/:postId', deleteLikes)//, schemaValidator('login'), loginController)
+likesRouter.patch('/togglelike/:postId', postLikes)
+likesRouter.get('/likes/:postId', authValidator, getWhoLiked)
 
 export default likesRouter

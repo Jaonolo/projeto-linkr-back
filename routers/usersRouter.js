@@ -8,5 +8,6 @@ const usersRouter = Router()
 
 usersRouter.get('/user', getUser)
 usersRouter.post('/users', authValidator, schemaValidator(getUsersByNameSchema), getUsersByName)
+//usersRouter.get('/users/:id', authValidator, getUserById);
 
 export default usersRouter

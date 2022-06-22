@@ -59,3 +59,23 @@ export async function postLikes(req,res){
         res.status(500).send("Ocorreu um erro na rota post Likes");
     }
 }
+
+export const getWhoLiked = async (req, res) => {
+    try {
+        const { postId } = req.params
+
+        const whoLiked = await db.query(
+            `SELECT likes.*, users."userName"
+            FROM likes
+            JOIN users ON likes."userId" = users.id
+            WHERE likes."postId" = $1`,
+        [postId]);
+
+        const infos = whoLiked.rows;
+        res.status(200).send(infos);
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send("Ocorreu um erro na rota post Likes");
+    }
+}
