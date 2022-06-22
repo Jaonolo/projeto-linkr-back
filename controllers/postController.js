@@ -67,6 +67,7 @@ export const editPostController = async (req, res) => {
 export const deletePostController = async (req, res) => {
     const { id } = res.locals
     try {
+        await client.query(`DELETE FROM likes WHERE "postId" = $1;`, [id])
         await client.query(`DELETE FROM posts WHERE id = $1;`, [id])
         return res.status(204).json({message:'Post deletado.'})
     } catch(error) { 
@@ -90,3 +91,4 @@ export async function getPostsByHashtag(req, res) {
         res.status(500).send(error);
     }
 }
+
