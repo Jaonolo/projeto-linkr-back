@@ -9,7 +9,7 @@ export async function postComments(req,res){
     
     try{
 
-        await db.query(`INSERT INTO comments ("postId", "userId", "text")
+        await db.query(`INSERT INTO comments ("postsId", "userId", "text")
                         VALUES ($1, $2, $3)`, [parseInt(req.params.postId), parseInt(userId), message]);
         
         res.sendStatus(201);
@@ -33,7 +33,7 @@ export async function getComments(req,res){
                                                 comments.text as "whatComment", posts."userId" as "postOwnerId"
                                                 FROM comments
                                                 JOIN users ON users.id = comments."userId"
-                                                JOIN posts ON posts.id = comments."postId"
+                                                JOIN posts ON posts.id = comments."postsId"
                                                 WHERE posts.id = $1
                                                 GROUP BY comments."userId", 
                                                 users."profilePicture", users."userName", 
