@@ -22,8 +22,8 @@ export async function postComments(req,res){
 
 export async function getComments(req,res){
 
-    //const {userId} = res.locals.postComment
-    const userId = 1;
+    const {userId} = res.locals.getComment
+    //const userId = 2;
     let commentsObj;
 
     try {
@@ -37,7 +37,8 @@ export async function getComments(req,res){
                                                 WHERE posts.id = $1
                                                 GROUP BY comments."userId", 
                                                 users."profilePicture", users."userName", 
-                                                comments.text, posts."userId"`, [parseInt(req.params.postId)])
+                                                comments.text, posts."userId", comments."createdAt"
+                                                ORDER BY comments."createdAt" `, [parseInt(req.params.postId)])
     
         const followersInfo = await db.query(`SELECT followers."follwerId" as "whoFollows",
                                                 followers."followedId" as "whoIsFollowed"
@@ -47,7 +48,6 @@ export async function getComments(req,res){
 
         if(commentsInfos.rows.length !== 0){
                 commentsObj = commentsInfos.rows?.map((commentInfo) => {
-                    console.log(commentInfo.whoCommentId == commentInfo.postOwnerId)
                     if(commentInfo.whoCommentId == commentInfo.postOwnerId){
                         return {
                                 ...commentInfo,
@@ -62,7 +62,7 @@ export async function getComments(req,res){
                     }
                     })
         } else {
-            return res.status(200).send([commentsInfos, followersInfo])
+            commentsObj = []
         }
 
         return res.status(200).send(commentsObj)

@@ -5,6 +5,7 @@ import db from ".././config/db.js"
 export async function postCommentsValidation(req, res, next){
 
     const {message} = req.body
+    console.log(message)
     const {authorization} = req.headers
 
     if(isNaN(req.params.postId)){

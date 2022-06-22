@@ -9,9 +9,9 @@ import { postCommentsValidation, getCommentsValidation } from '../middlewares/co
 const commentsRouter = Router()
 
 commentsRouter.post('/postcomments/:postId', postCommentsValidation, postComments)
-//commentsRouter.get('/getcomments/:postId', getCommentsValidation, getComments)
+commentsRouter.get('/getcomments/:postId', getCommentsValidation, getComments)
 
 //TESTE
-commentsRouter.get('/getcomments/:postId', getComments)
+//commentsRouter.get('/getcomments/:postId', getComments)
 
 export default commentsRouter
