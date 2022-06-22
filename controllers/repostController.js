@@ -37,12 +37,13 @@ export const getTimelineList = async (req, res) => {
                 post = {
                     isRepost: true,
                     whoReposted: whoRepostedData.rows[0].userName,
+                    whoRepostedId:whoRepostedData.rows[0].id,
                     createdAt:timelineList[i].createdAt,
                     id:postRow.id,
                     userId:postRow.userId,
                     userName: postUser.userName,
                     profilePicture:postUser.profilePicture,
-                    urlMetadata: url,
+                    urlMeta: url,
                     message:postRow.message,
                     edited:postRow.edited,
                     numberReposts: repostsData.rows.length
@@ -57,7 +58,7 @@ export const getTimelineList = async (req, res) => {
                     userName: postUser.userName,
                     profilePicture:postUser.profilePicture,
                     numberReposts: repostsData.rows.length,
-                    urlMetadata: url
+                    urlMeta: url
                 }
             }
             list.push(post)
