@@ -1,4 +1,5 @@
 import client from '../config/db.js'
+import { urlMetadataInfo } from '../globalFunctions/urlDataFunction.js'
 
 export const newRepostController = async (req, res) => {
     const { postId, userId } = res.locals
@@ -18,17 +19,21 @@ export const getTimelineList = async (req, res) => {
     const { timelineList } = res.locals
     try{
         const list = []
-        let list2 = []
+        
         for(let i=0; i<timelineList.length; i++){
+            
             let post = {}
-            if(timelineList[i].postsId){
+
+            if(timelineList[i].postsId){    
                 const postData = await client.query(`SELECT * FROM posts WHERE id = $1;`, [timelineList[i].postsId])
                 const postRow = postData.rows[0]
+                const url = await urlMetadataInfo(postRow.link)
+
                 const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [postRow.userId])
                 const postUser = postUserData.rows[0]
                 const whoRepostedData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
                 const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].postsId])
-
+                
                 post = {
                     isRepost: true,
                     whoReposted: whoRepostedData.rows[0].userName,
@@ -37,7 +42,7 @@ export const getTimelineList = async (req, res) => {
                     userId:postRow.userId,
                     userName: postUser.userName,
                     profilePicture:postUser.profilePicture,
-                    link: postRow.link,
+                    urlMetadata: url,
                     message:postRow.message,
                     edited:postRow.edited,
                     numberReposts: repostsData.rows.length
@@ -46,11 +51,13 @@ export const getTimelineList = async (req, res) => {
                 const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].id])
                 const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
                 const postUser = postUserData.rows[0]
+                const url = await urlMetadataInfo(timelineList[i].link)
                 post = {
                     ...timelineList[i],
                     userName: postUser.userName,
                     profilePicture:postUser.profilePicture,
-                    numberReposts: repostsData.rows.length
+                    numberReposts: repostsData.rows.length,
+                    urlMetadata: url
                 }
             }
             list.push(post)
