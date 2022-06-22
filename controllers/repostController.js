@@ -13,10 +13,12 @@ export const newRepostController = async (req, res) => {
     }
 }
 
+//LISTA CONTEUDO POSTS E REPOSTS
 export const getTimelineList = async (req, res) => {
     const { timelineList } = res.locals
     try{
         const list = []
+        let list2 = []
         for(let i=0; i<timelineList.length; i++){
             let post = {}
             if(timelineList[i].postsId){
@@ -52,6 +54,7 @@ export const getTimelineList = async (req, res) => {
                 }
             }
             list.push(post)
+            list.sort((x, y) => (x.createdAt - y.createdAt)).reverse()
         }
         return res.status(200).send(list)
     }catch(error){
