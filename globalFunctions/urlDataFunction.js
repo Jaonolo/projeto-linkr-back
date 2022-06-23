@@ -11,7 +11,7 @@ export async function urlMetadataInfo(url) {
 					"url": {
 						"link": metadata.url,
 						"title": metadata.title,
-                        			"image": metadata.image,
+                        "image": metadata.image,
 						"description": metadata.description						
 					}
 				};
@@ -22,7 +22,7 @@ export async function urlMetadataInfo(url) {
 					"url": {
 						"link": url,
 						"title": url,
-                        			"image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Error.svg/1200px-Error.svg.png",
+                        "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Error.svg/1200px-Error.svg.png",
 						"description": "ERROR: URL not found"						
 					}
 				};

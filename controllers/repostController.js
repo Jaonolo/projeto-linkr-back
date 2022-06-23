@@ -29,9 +29,18 @@ export const getTimelineList = async (req, res) => {
                 const whoRepostedData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
                 const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].postsId])
 
+                // Sugestão de query para unir post e user infos com o numero de comentários
+                /*  SELECT posts.*, users."userName", users."profilePicture",
+                    COUNT(comments."postsId") as "countComments"
+                    FROM posts
+                    JOIN users ON posts."userId" = users.id
+                    LEFT JOIN comments ON comments."postsId" = posts.id
+                    WHERE posts.id=1
+                    GROUP BY posts.id, users."userName", users."profilePicture" */
                 post = {
                     isRepost: true,
                     whoReposted: whoRepostedData.rows[0].userName,
+                    userRepostedId: timelineList[i].userId,
                     createdAt:timelineList[i].createdAt,
                     id:postRow.id,
                     userId:postRow.userId,
