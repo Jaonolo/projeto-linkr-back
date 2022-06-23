@@ -17,6 +17,7 @@ export const newRepostController = async (req, res) => {
 //LISTA CONTEUDO POSTS E REPOSTS
 export const getTimelineList = async (req, res) => {
     const { timelineList } = res.locals
+    const {timestamp} = req.query;
     try{
         const list = []
         
@@ -62,9 +63,16 @@ export const getTimelineList = async (req, res) => {
                 }
             }
             list.push(post)
-            list.sort((x, y) => (x.createdAt - y.createdAt)).reverse()
         }
-        return res.status(200).send(list)
+        let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt));
+        //let reducedList = list.filter(post => new Date(post.createdAt) < new Date(timestamp));
+        //console.log(reducedList.map(post => post.createdAt));
+        //reducedList = reducedList.slice(0,3);
+        /*for(let post of reducedList) {
+            post.urlMeta = await urlMetadataInfo(post.link);
+        }*/
+        
+        return res.status(200).send(reducedList);
     }catch(error){
         console.log(error)
         return res.status(500).json({message: 'Erro ao tentar se conectar com o banco de dados no controller.'})
