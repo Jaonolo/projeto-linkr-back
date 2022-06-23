@@ -64,13 +64,13 @@ export const getTimelineList = async (req, res) => {
             }
             list.push(post)
         }
-        let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt));
-        //let reducedList = list.filter(post => new Date(post.createdAt) < new Date(timestamp));
-        //console.log(reducedList.map(post => post.createdAt));
-        //reducedList = reducedList.slice(0,3);
-        /*for(let post of reducedList) {
+        console.log(timestamp);
+        let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt)).filter(post => new Date(post.createdAt) < new Date(timestamp));
+        console.log(reducedList.map(post => post.createdAt));
+        reducedList = reducedList.slice(0,3);
+        for(let post of reducedList) {
             post.urlMeta = await urlMetadataInfo(post.link);
-        }*/
+        }
         
         return res.status(200).send(reducedList);
     }catch(error){
