@@ -29,7 +29,11 @@ export async function testeValidation(req, res, next){
 export async function testeValidation2(req, res, next){
     try{
 
-        const postsData = await client.query(`SELECT posts.* FROM posts WHERE posts."userId"=$1`, [parseInt(req.params.id)])
+        const postsData = await client.query(`SELECT posts.*, COUNT(comments."postsId") as "countComments"
+                                                FROM posts 
+                                                LEFT JOIN comments ON comments."postsId"=posts.id
+                                                WHERE posts."userId"=$1
+                                                GROUP BY posts, posts.id`, [parseInt(req.params.id)])
         const posts = postsData.rows
 
         const repostsData = await client.query(`SELECT repost.* FROM repost WHERE repost."userId"=$1`, [parseInt(req.params.id)])

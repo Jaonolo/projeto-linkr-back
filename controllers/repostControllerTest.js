@@ -6,7 +6,7 @@ export const newRepostController = async (req, res) => {
     try{
         await client.query(
             `INSERT INTO repost ("postsId", "userId") 
-            VALUES ($1, $2);`, [postId, userId])
+             VALUES ($1, $2);`, [postId, userId])
         return res.status(201).json({message:'Conteúdo repostado com sucesso.'})
     }catch(error){
         console.log(error)
@@ -15,25 +15,30 @@ export const newRepostController = async (req, res) => {
 }
 
 //LISTA CONTEUDO POSTS E REPOSTS
-export const getTimelineList = async (req, res) => {
+export const getTimelineListTeste = async (req, res) => {
     const { timelineList } = res.locals
     const {timestamp} = req.query;
     try{
         const list = []
         
-        for(let i=0; i<timelineList.length; i++){
+        for(let post of timelineList){
             
-            let post = {}
-
-            if(timelineList[i].postsId){    
-                const postData = await client.query(`SELECT * FROM posts WHERE id = $1;`, [timelineList[i].postsId])
+            let postInfo = {}
+            if(post.postsId){   
+                const postData = await client.query(`SELECT posts.*, users."userName", users."profilePicture",
+                                                    COUNT(comments."postsId") as "countComments"
+                                                    FROM posts
+                                                    JOIN users ON posts."userId" = users.id
+                                                    LEFT JOIN comments ON comments."postsId" = posts.id
+                                                    WHERE posts.id=$1
+                                                    GROUP BY posts.id, users."userName", users."profilePicture"`, [post.postsId])
                 const postRow = postData.rows[0]
                 const url = await urlMetadataInfo(postRow.link)
 
-                const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [postRow.userId])
-                const postUser = postUserData.rows[0]
-                const whoRepostedData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
-                const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].postsId])
+                //const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [postRow.userId])
+                //const postUser = postUserData.rows[0]
+                const whoRepostedData = await client.query(`SELECT * FROM users WHERE id = $1;`, [post.userId])
+                const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [post.postsId])
 
                 // Sugestão de query para unir post e user infos com o numero de comentários
                 /*  SELECT posts.*, users."userName", users."profilePicture",
@@ -43,34 +48,35 @@ export const getTimelineList = async (req, res) => {
                     LEFT JOIN comments ON comments."postsId" = posts.id
                     WHERE posts.id=1
                     GROUP BY posts.id, users."userName", users."profilePicture" */
-                post = {
+                postInfo = {
                     isRepost: true,
                     whoReposted: whoRepostedData.rows[0].userName,
-                    userRepostedId: timelineList[i].userId,
-                    createdAt:timelineList[i].createdAt,
+                    userRepostedId: post.userId,
+                    createdAt:post.createdAt,
                     id:postRow.id,
                     userId:postRow.userId,
-                    userName: postUser.userName,
-                    profilePicture:postUser.profilePicture,
+                    userName: postRow.userName,
+                    profilePicture:postRow.profilePicture,
                     urlMeta: url,
                     message:postRow.message,
                     edited:postRow.edited,
-                    numberReposts: repostsData.rows.length
+                    numberReposts: repostsData.rows.length, 
+                    countComments: postRow.countComments
                 }
             }else{
-                const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].id])
-                const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
+                const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [post.id])
+                const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [post.userId])
                 const postUser = postUserData.rows[0]
-                const url = await urlMetadataInfo(timelineList[i].link)
-                post = {
-                    ...timelineList[i],
+                const url = await urlMetadataInfo(post.link)
+                postInfo = {
+                    ...post,
                     userName: postUser.userName,
                     profilePicture:postUser.profilePicture,
                     numberReposts: repostsData.rows.length,
                     urlMeta: url
                 }
             }
-            list.push(post)
+            list.push(postInfo)
         }
         let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt));
         //let reducedList = list.filter(post => new Date(post.createdAt) < new Date(timestamp));

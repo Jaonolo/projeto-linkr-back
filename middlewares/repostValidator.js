@@ -10,7 +10,7 @@ export async function newRepostValidation(req, res, next){
     const newPostSchema = Joi.object({
         postId: Joi.number().required()  
     })
-    const {error} = newPostSchema.validate({postId})
+    const {error} = newPostSchema.validate({postId: postId})
     if(error) return res.status(422).json({message:'ID do post inválido.'})
 
     try{
@@ -18,7 +18,7 @@ export async function newRepostValidation(req, res, next){
         if(checkToken.rows.length === 0) return res.status(404).json({message:'Token invalido.'})
         const {userId} = checkToken.rows[0]
         res.locals = {
-            postId,
+            postId: postId,
             userId
         }
     }catch(error){
