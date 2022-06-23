@@ -1,5 +1,5 @@
 import client from '../config/db.js'
-import {urlMetadataInfo} from './../globalFunctions/urlDataFunction.js';
+import { urlMetadataInfo } from '../globalFunctions/urlDataFunction.js'
 
 export const newRepostController = async (req, res) => {
     const { postId, userId } = res.locals
@@ -20,25 +20,31 @@ export const getTimelineList = async (req, res) => {
     const {timestamp} = req.query;
     try{
         const list = []
+        
         for(let i=0; i<timelineList.length; i++){
+            
             let post = {}
-            if(timelineList[i].postsId){
+
+            if(timelineList[i].postsId){    
                 const postData = await client.query(`SELECT * FROM posts WHERE id = $1;`, [timelineList[i].postsId])
                 const postRow = postData.rows[0]
+                const url = await urlMetadataInfo(postRow.link)
+
                 const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [postRow.userId])
                 const postUser = postUserData.rows[0]
                 const whoRepostedData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
                 const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].postsId])
-
+                
                 post = {
                     isRepost: true,
                     whoReposted: whoRepostedData.rows[0].userName,
+                    whoRepostedId:whoRepostedData.rows[0].id,
                     createdAt:timelineList[i].createdAt,
                     id:postRow.id,
                     userId:postRow.userId,
                     userName: postUser.userName,
                     profilePicture:postUser.profilePicture,
-                    link: postRow.link,
+                    urlMeta: url,
                     message:postRow.message,
                     edited:postRow.edited,
                     numberReposts: repostsData.rows.length
@@ -47,23 +53,24 @@ export const getTimelineList = async (req, res) => {
                 const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [timelineList[i].id])
                 const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [timelineList[i].userId])
                 const postUser = postUserData.rows[0]
+                const url = await urlMetadataInfo(timelineList[i].link)
                 post = {
                     ...timelineList[i],
                     userName: postUser.userName,
                     profilePicture:postUser.profilePicture,
-                    numberReposts: repostsData.rows.length
+                    numberReposts: repostsData.rows.length,
+                    urlMeta: url
                 }
             }
             list.push(post)
         }
-        list.sort((y, x) => (x.createdAt - y.createdAt));
-        console.log(timestamp);
-        let reducedList = list.filter(post => new Date(post.createdAt) < new Date(timestamp));
-        console.log(reducedList.map(post => post.createdAt));
-        reducedList = reducedList.slice(0,3);
-        for(let post of reducedList) {
+        let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt));
+        //let reducedList = list.filter(post => new Date(post.createdAt) < new Date(timestamp));
+        //console.log(reducedList.map(post => post.createdAt));
+        //reducedList = reducedList.slice(0,3);
+        /*for(let post of reducedList) {
             post.urlMeta = await urlMetadataInfo(post.link);
-        }
+        }*/
         
         return res.status(200).send(reducedList);
     }catch(error){
