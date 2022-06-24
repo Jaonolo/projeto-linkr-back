@@ -5,7 +5,8 @@ import {  newRepostValidation } from "../middlewares/repostValidator.js";
 
 import {authValidator} from "./../middlewares/authValidator.js"
 import { newGetTimelineList } from '../controllers/repostController.js';
-import { timelineValidation } from '../middlewares/repostValidator.js';
+import { timelineValidation, newPostsTimelineValidation } from '../middlewares/repostValidator.js';
+import { getTimelineListNewPosts } from "../controllers/respostForNewController.js";
 
 const repostRouter = Router()
 
@@ -14,5 +15,7 @@ repostRouter.post('/repost', newRepostValidation, newRepostController)
 
 //Novo router se aprovado apagar o de cima
 repostRouter.get('/timelinelist', authValidator, timelineValidation, newGetTimelineList)
+
+repostRouter.get('/timelinelist/newposts/:id', authValidator, newPostsTimelineValidation, getTimelineListNewPosts)
 
 export default repostRouter
