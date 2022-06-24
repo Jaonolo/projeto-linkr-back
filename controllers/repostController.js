@@ -103,6 +103,7 @@ export const newGetTimelineList = async (req, res) => {
                     isRepost: true,
                     whoReposted: whoRepostedData.rows[0].userName,
                     userRepostedId: post.userId,
+                    userPictureResposted: whoRepostedData.rows[0].profilePicture, 
                     createdAt:post.createdAt,
                     id:postRow.id,
                     userId:postRow.userId,
