@@ -49,3 +49,78 @@ export const getUserById = async (req, res) => {
         res.status(500).send(error);
     }
 }*/
+
+export const checkIfFollows = async (req, res) => {
+    try {
+        const { userId, followId } = req.params;
+        console.log(userId, followId)
+        const result = await client.query(
+            `
+            SELECT * FROM followers WHERE "followerId" = $1 AND "followedId" = $2;
+            `, [userId, followId]
+        )
+        if (result.rows.length === 0)
+        return res.send(false);
+        else
+        return res.send(true);   
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
+
+export const follow = async (req, res) => {
+    try {
+        const { userId, followId } = req.params;
+        console.log(userId, followId)
+        const result = await client.query(
+            `
+            SELECT * FROM followers WHERE "followerId" = $1 AND "followedId" = $2;
+            `, [userId, followId]
+        )
+        if (result.rows.length === 0)
+        {
+            await client.query(
+                `
+                INSERT INTO followers ("followerId", "followedId")
+                VALUES ($1, $2);
+                `, [userId, followId]
+            )
+            return res.sendStatus(200);
+        }
+        else
+        return res.sendStatus(404);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
+
+export const unfollow = async (req, res) => {
+    try {
+        const { userId, followId } = req.params;
+        console.log(userId, followId)
+        const result = await client.query(
+            `
+            SELECT * FROM followers WHERE "followerId" = $1 AND "followedId" = $2;
+            `, [userId, followId]
+        )
+        if (result.rows.length != 0)
+        {
+            await client.query(
+                `
+                DELETE FROM followers WHERE "followerId" = $1 AND "followedId" = $2;
+                `, [userId, followId]
+            )
+            return res.sendStatus(200);
+        }
+        else
+        return res.sendStatus(404);
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
