@@ -39,7 +39,7 @@ export const loginController = async (req, res) => {
             token,
             user.id
         ]);
-        return res.status(200).send({token, id: user.id})
+        return res.status(200).send({token, id: user.id, profilePicture: user.profilePicture, username: user.userName})
 
     } catch (error) { return res.status(500).send(error) }
 }
