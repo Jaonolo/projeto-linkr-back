@@ -66,11 +66,8 @@ export const newRepostController = async (req, res) => {
         }
         console.log(timestamp);
         let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt)).filter(post => new Date(post.createdAt) < new Date(timestamp));
-        console.log(reducedList.map(post => post.createdAt));
+        //console.log(reducedList.map(post => post.createdAt));
         reducedList = reducedList.slice(0,3);
-        for(let post of reducedList) {
-            post.urlMeta = await urlMetadataInfo(post.link);
-        }
         
         return res.status(200).send(reducedList);
     }catch(error){
