@@ -12,7 +12,6 @@ import likesRouter from "./routers/likesRouter.js";
 import hashtagRouter from "./routers/hashTagRouter.js";
 import commentsRouter from "./routers/commentsRouter.js";
 import repostRouter from "./routers/repostRouter.js";
-import testRouter from "./routers/testeRouter.js";
 
 const app = express();
 
@@ -33,7 +32,6 @@ app.use(repostRouter)
 
 app.use(commentsRouter)
 
-app.use(testRouter)
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {

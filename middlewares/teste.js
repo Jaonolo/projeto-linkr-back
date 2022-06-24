@@ -5,9 +5,12 @@ import client from '../config/db.js'
 export async function testeValidation(req, res, next){
     try{
         const {userId} = res.locals;
-        const postsData = await client.query(`SELECT posts.*, followers."followerId", followers."followedId" FROM posts
+        const postsData = await client.query(`SELECT posts.*, followers."followerId", followers."followedId", COUNT(comments."postsId") as "countComments"
+                                                FROM posts
                                                 JOIN followers ON followers."followedId" = posts."userId"
-                                                WHERE followers."followerId"= $1`, [userId])
+                                                LEFT JOIN comments ON comments."postsId" = posts.id
+                                                WHERE followers."followerId"= $1
+                                                GROUP BY posts, posts.id, followers."followerId", followers."followedId"`, [userId])
         const posts = postsData.rows
 
         const repostsData = await client.query(`SELECT repost.*, followers."followerId", followers."followedId" FROM repost
@@ -28,7 +31,7 @@ export async function testeValidation(req, res, next){
 
 export async function testeValidation2(req, res, next){
     try{
-
+        
         const postsData = await client.query(`SELECT posts.*, COUNT(comments."postsId") as "countComments"
                                                 FROM posts 
                                                 LEFT JOIN comments ON comments."postsId"=posts.id
@@ -53,11 +56,13 @@ export async function testeValidation2(req, res, next){
 export async function testeValidation3(req, res, next){
     try{
         let hashtag = "#" + req.params.hashtag;
-        const postsData = await client.query(`SELECT posts.*
+        const postsData = await client.query(`SELECT posts.*, COUNT(comments."postsId") as "countComments"
                                                 FROM posts
+                                                LEFT JOIN comments ON comments."postsId" = posts.id
                                                 JOIN "postsHashtags" AS ph ON posts.id = ph."postId"
                                                 JOIN hashtags ON ph."hashtagId" = hashtags.id
-                                                WHERE hashtags.tag = $1`, [hashtag])
+                                                WHERE hashtags.tag = $1
+                                                GROUP BY posts.id`, [hashtag])
         const posts = postsData.rows
 
         const repostsData = await client.query(`SELECT repost.*

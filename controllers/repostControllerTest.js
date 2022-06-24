@@ -6,7 +6,7 @@ export const newRepostController = async (req, res) => {
     try{
         await client.query(
             `INSERT INTO repost ("postsId", "userId") 
-             VALUES ($1, $2);`, [postId, userId])
+            VALUES ($1, $2);`, [postId, userId])
         return res.status(201).json({message:'Conteúdo repostado com sucesso.'})
     }catch(error){
         console.log(error)
@@ -22,7 +22,6 @@ export const getTimelineListTeste = async (req, res) => {
         const list = []
         
         for(let post of timelineList){
-            
             let postInfo = {}
             if(post.postsId){   
                 const postData = await client.query(`SELECT posts.*, users."userName", users."profilePicture",
@@ -33,7 +32,7 @@ export const getTimelineListTeste = async (req, res) => {
                                                     WHERE posts.id=$1
                                                     GROUP BY posts.id, users."userName", users."profilePicture"`, [post.postsId])
                 const postRow = postData.rows[0]
-                const url = await urlMetadataInfo(postRow.link)
+                //const url = await urlMetadataInfo(postRow.link)
 
                 //const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [postRow.userId])
                 //const postUser = postUserData.rows[0]
@@ -57,8 +56,8 @@ export const getTimelineListTeste = async (req, res) => {
                     userId:postRow.userId,
                     userName: postRow.userName,
                     profilePicture:postRow.profilePicture,
-                    urlMeta: url,
                     message:postRow.message,
+                    link: postRow.link,
                     edited:postRow.edited,
                     numberReposts: repostsData.rows.length, 
                     countComments: postRow.countComments
@@ -67,26 +66,29 @@ export const getTimelineListTeste = async (req, res) => {
                 const repostsData = await client.query(`SELECT * FROM repost WHERE "postsId" = $1;`, [post.id])
                 const postUserData = await client.query(`SELECT * FROM users WHERE id = $1;`, [post.userId])
                 const postUser = postUserData.rows[0]
-                const url = await urlMetadataInfo(post.link)
+                //const url = await urlMetadataInfo(post.link)
                 postInfo = {
                     ...post,
                     userName: postUser.userName,
                     profilePicture:postUser.profilePicture,
-                    numberReposts: repostsData.rows.length,
-                    urlMeta: url
+                    numberReposts: repostsData.rows.length
                 }
             }
             list.push(postInfo)
         }
-        let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt));
-        //let reducedList = list.filter(post => new Date(post.createdAt) < new Date(timestamp));
-        //console.log(reducedList.map(post => post.createdAt));
-        //reducedList = reducedList.slice(0,3);
-        /*for(let post of reducedList) {
-            post.urlMeta = await urlMetadataInfo(post.link);
-        }*/
+        list.sort((y, x) => (x.createdAt - y.createdAt))
+        //let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt)).filter(post => new Date(post.createdAt) < new Date('2040-09-28T22:59:02.448804522Z'));
+        let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt)).filter(post => new Date(post.createdAt) < new Date(timestamp));
+/*         console.log(reducedList.map(post => post.createdAt));
+        console.log(reducedList) */
+        reducedList = reducedList.slice(0,3);
+        for(let postInfo of reducedList) {
+            postInfo.urlMeta = await urlMetadataInfo(postInfo.link);
+        }
         
+        //return res.status(200).send(reducedList);
         return res.status(200).send(reducedList);
+        
     }catch(error){
         console.log(error)
         return res.status(500).json({message: 'Erro ao tentar se conectar com o banco de dados no controller.'})
