@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getUser, getUsersByName, getUsersByNameFollowersFirst, follow, unfollow } from '../controllers/usersController.js';
+import { getUser, getUsersByName, getUsersByNameFollowersFirst, follow, unfollow, checkIfFollows } from '../controllers/usersController.js';
 import { authValidator } from '../middlewares/authValidator.js';
 import { schemaValidator } from '../middlewares/schemaValidator.js';
 import { getUsersByNameSchema } from '../schemas/userSchemas.js';
