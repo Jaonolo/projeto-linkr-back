@@ -29,6 +29,29 @@ export const getUsersByName = async (req, res) => {
         return res.status(500).send(error) 
     }
 }
+
+export const getUsersByNameFollowersFirst = async (req, res) => {
+    try {
+        const {searchString} = req.body
+        const result = await client.query(
+            `SELECT * FROM (
+                (
+                    SELECT users.id, users."userName", users."profilePicture", (users.id IN (
+                        SELECT followers."followedId" FROM followers
+                        WHERE followers."followerId" = $1
+                    )) AS follower FROM users
+                    WHERE users.id <> $1 
+                )
+            ) AS result WHERE result."userName" LIKE $2
+            ORDER BY follower DESC;`,
+            [res.locals.userId, searchString + '%']
+        )
+        return res.status(200).send(result)
+    } catch(error) { 
+        return res.status(500).send(error) 
+    }
+}
+
 /*
 export const getUserById = async (req, res) => {
 
