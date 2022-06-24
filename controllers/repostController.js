@@ -18,6 +18,9 @@ export const newRepostController = async (req, res) => {
 /* export const getTimelineList = async (req, res) => {
     const { timelineList } = res.locals
     const {timestamp} = req.query;
+
+    const returnObject = (res.locals.additionalReturn) ? {pageContext: res.locals.additionalReturn} : {}
+
     try{
         const list = []
         
@@ -69,7 +72,7 @@ export const newRepostController = async (req, res) => {
         //console.log(reducedList.map(post => post.createdAt));
         reducedList = reducedList.slice(0,3);
         
-        return res.status(200).send(reducedList);
+        return res.status(200).send({...returnObject, postList: reducedList});
     }catch(error){
         console.log(error)
         return res.status(500).json({message: 'Erro ao tentar se conectar com o banco de dados no controller.'})
@@ -136,7 +139,8 @@ export const newGetTimelineList = async (req, res) => {
             postInfo.urlMeta = await urlMetadataInfo(postInfo.link);
         }
         
-        return res.status(200).send(reducedList);
+        
+        return res.status(200).send((res.locals.additionalReturn) ? {pageContext: res.locals.additionalReturn, postsList: reducedList} : reducedList);
         
     }catch(error){
         console.log(error)

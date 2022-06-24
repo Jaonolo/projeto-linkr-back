@@ -77,6 +77,12 @@ export async function timelineValidation(req, res, next){
 
 export async function userPageValidation(req, res, next){
     try{
+        const userData = (await client.query(`SELECT users.id, users."userName", users."profilePicture"
+                                                FROM users
+                                                WHERE users.id = $1`, [parseInt(req.params.id)])).rows
+
+        if (userData.length === 0)
+            return res.status(404).send('User not found');
         
         const postsData = await client.query(`SELECT posts.*, COUNT(comments."postsId") as "countComments"
                                                 FROM posts 
@@ -89,8 +95,11 @@ export async function userPageValidation(req, res, next){
         const reposts = repostsData.rows
 
         const timelineList = [...posts, ...reposts]
+        const additionalReturn = { user: userData[0] }
+        console.log(additionalReturn)
         res.locals = {
-            timelineList
+            timelineList,
+            additionalReturn
         }
     }catch(error){
         console.log(error)
