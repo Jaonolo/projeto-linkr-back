@@ -147,3 +147,23 @@ export const unfollow = async (req, res) => {
         res.status(500).send(error);
     }
 }
+
+export const numberOfFollows = async (req, res) => {
+    try
+    {
+        const { id } = req.params;
+        const result = await client.query(
+            `
+            SELECT * FROM followers WHERE "followerId" = $1;
+            `, [id]
+        )
+        if(result.rows.length === 0)
+        return res.send(false)
+        else
+        return res.send(true)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send(error);
+    }
+}
