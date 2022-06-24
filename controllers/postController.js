@@ -3,9 +3,7 @@ import { urlMetadataInfo } from '../globalFunctions/urlDataFunction.js'
 import postsRepository from "../repositories/postsRepository.js";
 import hashtagsRepository from '../repositories/hashtagsRepository.js';
 
-export const newPostController = async (req, res) => {
-    const {userId, link, message} = res.locals.postData
-
+const findUniqueHashtags = message => {
     let hashtags = [];
     let newHashtag = [];
     let readNewHashtag = false;
@@ -31,6 +29,14 @@ export const newPostController = async (req, res) => {
             uniqueHashtags.push(ht);
     }
 
+    return uniqueHashtags
+}
+
+export const newPostController = async (req, res) => {
+    const {userId, link, message} = res.locals.postData
+
+    const uniqueHashtags = findUniqueHashtags(message)
+
     try {
         let postId = await client.query(
             `INSERT INTO posts ("userId", link, message) 
@@ -50,12 +56,41 @@ export const newPostController = async (req, res) => {
 }
 
 export const editPostController = async (req, res) => {
-    const { id, message, userId} = res.locals.editPostData
+    const {id, message, userId} = res.locals.editPostData
+
+    const uniqueHashtags = findUniqueHashtags(message)
+
     try {
+        const oldHashtags = (await client.query(
+            `SELECT "postsHashtags"."hashtagId", hashtags.tag 
+             FROM "postsHashtags"
+             JOIN hashtags ON "postsHashtags"."hashtagId" = hashtags.id
+             WHERE "postsHashtags"."postId" = $1
+            `,
+        [ id ])).rows
+
+        const newHashtags = uniqueHashtags.filter(e => !(oldHashtags.map(({tag}) => tag).includes(e)))
+        const noMoreHashtags = oldHashtags.filter(({tag}) => !(uniqueHashtags.includes(tag)))
+
+        console.log(newHashtags, oldHashtags, uniqueHashtags, noMoreHashtags)
+
         await client.query(
             `UPDATE posts
              SET message = $1, edited = $2
              WHERE id = $3 AND "userId" = $4;`, [message, true, id, userId])
+        for(let ht of newHashtags) {
+            let tagId = await hashtagsRepository.getHashtagIdByTag(ht);
+            await client.query(
+                `INSERT INTO "postsHashtags" ("postId", "hashtagId")
+                VALUES ($1, $2)`, [id, tagId]
+            );
+        }
+        for(let ht of noMoreHashtags) {
+            await client.query(
+                `DELETE FROM "postsHashtags"
+                WHERE "postsHashtags"."postId" = $1 AND "postsHashtags"."hashtagId" = $2`, [id, ht.hashtagId]
+            );
+        }
         return res.status(200).json({message:'Post editado.'})
     } catch(error) { 
         console.log(error)
