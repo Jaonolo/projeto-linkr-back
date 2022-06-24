@@ -18,11 +18,20 @@ async function getHashtagIdByTag(hashtag) {
 
 async function getTop10TrendingHashtags() {
     return db.query(
-        `SELECT hashtags.tag FROM hashtags
-        JOIN "postsHashtags" AS ph ON hashtags.id = ph."hashtagId"
-        GROUP BY hashtags.tag
-        ORDER BY COUNT (hashtags) DESC
-        LIMIT 10`
+        `SELECT a.*, COUNT(a) FROM ((
+            SELECT hashtags.tag
+            FROM hashtags
+            JOIN "postsHashtags" AS ph 
+            ON hashtags.id = ph."hashtagId"
+        ) UNION ALL (
+            SELECT hashtags.tag
+            FROM hashtags
+            JOIN "postsHashtags" AS ph ON hashtags.id = ph."hashtagId"
+            JOIN repost ON ph."postId" = repost."postsId"
+        )) AS a
+        GROUP BY a.tag
+        ORDER BY COUNT (a) DESC
+        LIMIT 10;`
     );
 }
 
