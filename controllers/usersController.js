@@ -40,7 +40,6 @@ export const getUsersByNameFollowersFirst = async (req, res) => {
                         SELECT followers."followedId" FROM followers
                         WHERE followers."followerId" = $1
                     )) AS follower FROM users
-                    WHERE users.id <> $1 
                 )
             ) AS result WHERE result."userName" LIKE $2
             ORDER BY follower DESC;`,
