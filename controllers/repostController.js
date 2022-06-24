@@ -134,7 +134,7 @@ export const newGetTimelineList = async (req, res) => {
         list.sort((y, x) => (x.createdAt - y.createdAt))
         //let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt)).filter(post => new Date(post.createdAt) < new Date('2040-09-28T22:59:02.448804522Z'));
         let reducedList = list.sort((y, x) => (x.createdAt - y.createdAt)).filter(post => new Date(post.createdAt) < new Date(timestamp));
-        reducedList = reducedList.slice(0,3);
+        reducedList = reducedList.slice(0,10);
         for(let postInfo of reducedList) {
             postInfo.urlMeta = await urlMetadataInfo(postInfo.link);
         }
